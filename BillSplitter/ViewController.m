@@ -31,25 +31,38 @@
 - (IBAction)sliderValueChanged:(UISlider *)sender {
     self.numberOfPerson = [[NSDecimalNumber alloc]initWithInt:(int)sender.value];
      _personNumLabel.text = [NSString stringWithFormat:@"Number Of Person: %@",[[NSNumberFormatter new] stringFromNumber:self.numberOfPerson]] ;
+     [self splitBillWithTotal:self.totalBillAmount andNumberOfPerson:self.numberOfPerson];
 }
 - (IBAction)calculateSplitAmount:(id)sender {
     
-    NSDecimalNumberHandler *behavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundBankers scale:2 raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:NO];
-    
     self.totalBillAmount = [NSDecimalNumber decimalNumberWithString:_billAmountTextfield.text];
-    NSLog(@"total %@",self.totalBillAmount);
-    self.billAmount = [self.totalBillAmount decimalNumberByDividingBy:self.numberOfPerson];
-    NSLog(@"bill %@",self.billAmount);
-    _billAmountLabel.text = [NSString stringWithFormat:@"Bill Amount splitted by %@ is $%@ ",self.numberOfPerson,[self.billAmount decimalNumberByRoundingAccordingToBehavior:behavior]] ;
+    [self splitBillWithTotal:self.totalBillAmount andNumberOfPerson:self.numberOfPerson];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
     
-    
+    NSString *text = [textField.text stringByReplacingCharactersInRange:range withString:string];
+
+    if (![text isEqualToString:@""]) {
+        self.totalBillAmount = [NSDecimalNumber decimalNumberWithString:text];
+        
+        [self splitBillWithTotal:self.totalBillAmount andNumberOfPerson:self.numberOfPerson];
+
+
+    }
+
+    return YES;
     
 }
 
-
+-(void) splitBillWithTotal: (NSDecimalNumber*) total andNumberOfPerson:(NSDecimalNumber*) num {
+    NSDecimalNumberHandler *behavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundBankers scale:2 raiseOnExactness:NO raiseOnOverflow:YES raiseOnUnderflow:NO raiseOnDivideByZero:NO];
+    
+    self.billAmount = [total decimalNumberByDividingBy:num];
+    
+    _billAmountLabel.text = [NSString stringWithFormat:@"Bill Amount splitted by %@ is $%@ ",num,[self.billAmount decimalNumberByRoundingAccordingToBehavior:behavior]] ;
+    
+}
 
 
 
